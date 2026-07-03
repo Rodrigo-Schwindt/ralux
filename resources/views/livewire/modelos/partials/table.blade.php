@@ -1,0 +1,49 @@
+@forelse($modelos as $modelo)
+    <tr class="hover:bg-slate-50 transition">
+        <td class="px-4 py-4 text-center font-semibold text-slate-900">{{ $modelo->orden }}</td>
+
+        <td class="px-4 py-4">
+            <p class="font-medium text-slate-900">{{ $modelo->descripcion_es }}</p>
+            <p class="text-xs text-slate-500">{{ $modelo->descripcion_en }}</p>
+        </td>
+
+        <td class="px-4 py-4">
+            <p class="text-sm text-slate-700">{{ $modelo->marca?->descripcion_es ?? '—' }}</p>
+            <p class="text-xs text-slate-400">{{ $modelo->marca?->vehiculoTipo?->descripcion_es }}</p>
+        </td>
+
+        <td class="px-4 py-4 text-center">
+            @if($modelo->visible)
+                <span class="px-2 py-0.5 text-xs rounded-full bg-blue-100 text-blue-700">Visible</span>
+            @else
+                <span class="px-2 py-0.5 text-xs rounded-full bg-slate-100 text-slate-500">Oculto</span>
+            @endif
+        </td>
+
+        <td class="text-center">
+            <div class="flex items-center justify-center gap-3">
+                <a href="{{ route('modelos.edit', $modelo->id) }}"
+                   class="text-slate-500 hover:text-blue-600 transition cursor-pointer">
+                    <svg class="w-[24px] h-[24px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                    </svg>
+                </a>
+
+                <button class="delete-btn text-red-500 hover:text-red-600 transition cursor-pointer"
+                        data-id="{{ $modelo->id }}">
+                    <svg class="w-[28px] h-[28px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                </button>
+            </div>
+        </td>
+    </tr>
+@empty
+    <tr>
+        <td colspan="5" class="px-6 py-10 text-center text-slate-500 text-sm">
+            No hay modelos disponibles
+        </td>
+    </tr>
+@endforelse
