@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(/c/php-8.4.3/php.exe artisan *)"
+    ]
+  }
+}

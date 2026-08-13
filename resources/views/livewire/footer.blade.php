@@ -174,50 +174,31 @@
                         </div>
                         @endif
                         
-                        @if($contactData?->phone_amd)
-                        <div class="flex items-center max-w-[318px] w-full justify-center lg:justify-start">
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0">
-                                <path d="M3.33301 3.33334H6.66634L8.33301 7.50001L6.24967 8.75001C7.12399 10.5217 8.47797 11.8757 10.2497 12.75L11.4997 10.6667L15.6663 12.3333V15.6667C15.6663 16.1087 15.4907 16.5326 15.1782 16.8452C14.8656 17.1577 14.4417 17.3333 13.9997 17.3333C10.7434 17.1217 7.67399 15.6992 5.40263 13.4278C3.13126 11.1565 1.70878 8.08707 1.49967 4.83334C1.49967 4.39131 1.67527 3.96739 1.98783 3.65483C2.30039 3.34227 2.72431 3.16667 3.16634 3.16667L3.33301 3.33334Z" stroke="#AD0369" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            <a href="tel:{{ $contactData->phone_amd }}" class="text-white font-montserrat text-[14px] sm:text-[16px] font-normal leading-[150%] ml-3">
-                                {{ $contactData->phone_amd }}
-                            </a>
-                        </div>
-                        @endif
+                        @php
+                            $telefonosFooter = [
+                                'Comercial' => $contactData?->phone_amd,
+                                'Técnico'   => $contactData?->phone_sale,
+                                'Compras'   => $contactData?->maps_adm,
+                                'Administración' => $contactData?->maps_sale,
+                            ];
+                        @endphp
 
-                        @if($contactData?->phone_sale)
-                        <div class="flex items-center max-w-[318px] w-full justify-center lg:justify-start">
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0">
-                                <path d="M3.33301 3.33334H6.66634L8.33301 7.50001L6.24967 8.75001C7.12399 10.5217 8.47797 11.8757 10.2497 12.75L11.4997 10.6667L15.6663 12.3333V15.6667C15.6663 16.1087 15.4907 16.5326 15.1782 16.8452C14.8656 17.1577 14.4417 17.3333 13.9997 17.3333C10.7434 17.1217 7.67399 15.6992 5.40263 13.4278C3.13126 11.1565 1.70878 8.08707 1.49967 4.83334C1.49967 4.39131 1.67527 3.96739 1.98783 3.65483C2.30039 3.34227 2.72431 3.16667 3.16634 3.16667L3.33301 3.33334Z" stroke="#AD0369" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            <a href="tel:{{ $contactData->phone_sale }}" class="text-white font-montserrat text-[14px] sm:text-[16px] font-normal leading-[150%] ml-3">
-                                {{ $contactData->phone_sale }}
-                            </a>
-                        </div>
-                        @endif
+                        @foreach($telefonosFooter as $departamento => $telefono)
+                            @if($telefono)
+                            <div class="flex items-center max-w-[318px] w-full justify-center lg:justify-start">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0">
+                                    <path d="M3.33301 3.33334H6.66634L8.33301 7.50001L6.24967 8.75001C7.12399 10.5217 8.47797 11.8757 10.2497 12.75L11.4997 10.6667L15.6663 12.3333V15.6667C15.6663 16.1087 15.4907 16.5326 15.1782 16.8452C14.8656 17.1577 14.4417 17.3333 13.9997 17.3333C10.7434 17.1217 7.67399 15.6992 5.40263 13.4278C3.13126 11.1565 1.70878 8.08707 1.49967 4.83334C1.49967 4.39131 1.67527 3.96739 1.98783 3.65483C2.30039 3.34227 2.72431 3.16667 3.16634 3.16667L3.33301 3.33334Z" stroke="#AD0369" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span class="text-[#AD0369] font-montserrat text-[14px] sm:text-[16px] font-semibold leading-[150%] ml-3">
+                                    {{ $departamento }}:
+                                </span>
+                                <a href="tel:{{ $telefono }}" class="text-white font-montserrat text-[14px] sm:text-[16px] font-normal leading-[150%] ml-2">
+                                    {{ $telefono }}
+                                </a>
+                            </div>
+                            @endif
+                        @endforeach
 
-                        @if($contactData?->maps_adm)
-                        <div class="flex items-center max-w-[318px] w-full justify-center lg:justify-start">
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0">
-                                <path d="M3.33301 3.33334H6.66634L8.33301 7.50001L6.24967 8.75001C7.12399 10.5217 8.47797 11.8757 10.2497 12.75L11.4997 10.6667L15.6663 12.3333V15.6667C15.6663 16.1087 15.4907 16.5326 15.1782 16.8452C14.8656 17.1577 14.4417 17.3333 13.9997 17.3333C10.7434 17.1217 7.67399 15.6992 5.40263 13.4278C3.13126 11.1565 1.70878 8.08707 1.49967 4.83334C1.49967 4.39131 1.67527 3.96739 1.98783 3.65483C2.30039 3.34227 2.72431 3.16667 3.16634 3.16667L3.33301 3.33334Z" stroke="#AD0369" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            <a href="tel:{{ $contactData->maps_adm }}" class="text-white font-montserrat text-[14px] sm:text-[16px] font-normal leading-[150%] ml-3">
-                                {{ $contactData->maps_adm }}
-                            </a>
-                        </div>
-                        @endif
-
-                        @if($contactData?->maps_sale)
-                        <div class="flex items-center max-w-[318px] w-full justify-center lg:justify-start">
-                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg" class="flex-shrink-0">
-                                <path d="M3.33301 3.33334H6.66634L8.33301 7.50001L6.24967 8.75001C7.12399 10.5217 8.47797 11.8757 10.2497 12.75L11.4997 10.6667L15.6663 12.3333V15.6667C15.6663 16.1087 15.4907 16.5326 15.1782 16.8452C14.8656 17.1577 14.4417 17.3333 13.9997 17.3333C10.7434 17.1217 7.67399 15.6992 5.40263 13.4278C3.13126 11.1565 1.70878 8.08707 1.49967 4.83334C1.49967 4.39131 1.67527 3.96739 1.98783 3.65483C2.30039 3.34227 2.72431 3.16667 3.16634 3.16667L3.33301 3.33334Z" stroke="#AD0369" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                            <a href="tel:{{ $contactData->maps_sale }}" class="text-white font-montserrat text-[14px] sm:text-[16px] font-normal leading-[150%] ml-3">
-                                {{ $contactData->maps_sale }}
-                            </a>
-                        </div>
-                        @endif
-                        
                         @if($contactData?->mail_adm)
                         <div class="flex items-center max-w-[318px] w-full justify-center lg:justify-start">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none" class="flex-shrink-0">

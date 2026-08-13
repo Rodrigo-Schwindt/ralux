@@ -41,29 +41,48 @@
             
 
                     
-                    @if($contact?->phone_amd)
-                    <div class="flex items-center mb-5 sm:mb-[20px] max-[639px]:mb-4 transition-transform duration-200">
+                    @php
+                        $departamentos = [
+                            'Comercial'  => ['phone' => $contact?->phone_amd,  'mail' => $contact?->mail_comercial],
+                            'Técnico'    => ['phone' => $contact?->phone_sale, 'mail' => $contact?->mail_tecnico],
+                            'Compras'    => ['phone' => $contact?->maps_adm,   'mail' => $contact?->mail_compras],
+                            'Administración'  => ['phone' => $contact?->maps_sale,  'mail' => $contact?->mail_logistica],
+                        ];
+                    @endphp
+
+                    @foreach($departamentos as $nombre => $datos)
+                        @if($datos['phone'] || $datos['mail'])
+                        <div class="mb-5 sm:mb-[20px] max-[639px]:mb-4">
+                            <h3 class="text-[#AD0369] font-inter text-[16px] font-semibold leading-normal tracking-[-0.01em] mb-2 max-[1199px]:text-[15px] max-[639px]:text-[14px]">
+                                {{ $nombre }}
+                            </h3>
+
+                            @if($datos['phone'])
+                            <div class="flex items-center mb-2 transition-transform duration-200">
 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
   <path d="M22.0004 16.92V19.92C22.0016 20.1985 21.9445 20.4742 21.8329 20.7293C21.7214 20.9845 21.5577 21.2136 21.3525 21.4019C21.1473 21.5901 20.905 21.7335 20.6412 21.8227C20.3773 21.9119 20.0978 21.9451 19.8204 21.92C16.7433 21.5856 13.7874 20.5341 11.1904 18.85C8.77425 17.3147 6.72576 15.2662 5.19042 12.85C3.5004 10.2412 2.44866 7.271 2.12042 4.18C2.09543 3.90347 2.1283 3.62476 2.21692 3.36163C2.30555 3.09849 2.44799 2.85669 2.63519 2.65162C2.82238 2.44655 3.05023 2.28271 3.30421 2.17052C3.5582 2.05834 3.83276 2.00026 4.11042 2H7.11042C7.59573 1.99523 8.06621 2.16708 8.43418 2.48353C8.80215 2.79999 9.0425 3.23945 9.11042 3.72C9.23704 4.68007 9.47187 5.62273 9.81042 6.53C9.94497 6.88793 9.97408 7.27692 9.89433 7.65088C9.81457 8.02485 9.62928 8.36811 9.36042 8.64L8.09042 9.91C9.51398 12.4135 11.5869 14.4864 14.0904 15.91L15.3604 14.64C15.6323 14.3711 15.9756 14.1859 16.3495 14.1061C16.7235 14.0263 17.1125 14.0555 17.4704 14.19C18.3777 14.5286 19.3204 14.7634 20.2804 14.89C20.7662 14.9585 21.2098 15.2032 21.527 15.5775C21.8441 15.9518 22.0126 16.4296 22.0004 16.92Z" stroke="#AD0369" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
-                        <a href="tel:{{ $contact->phone_amd }}" class="text-[#111010] font-inter text-[16px] font-normal leading-normal tracking-[-0.01em] ml-3 max-[1199px]:text-[15px] max-[639px]:text-[14px] max-[639px]:ml-2">
-                            {{ $contact->phone_amd }}
-                        </a>
-                    </div>
-                    @endif
-                    
-                    @if($contact?->mail_adm)
-                    <div class="flex items-center mb-5 sm:mb-[20px] max-[639px]:mb-4 transition-transform duration-200">
+                                <a href="tel:{{ $datos['phone'] }}" class="text-[#111010] font-inter text-[16px] font-normal leading-normal tracking-[-0.01em] ml-3 max-[1199px]:text-[15px] max-[639px]:text-[14px] max-[639px]:ml-2">
+                                    {{ $datos['phone'] }}
+                                </a>
+                            </div>
+                            @endif
+
+                            @if($datos['mail'])
+                            <div class="flex items-center transition-transform duration-200">
 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
   <path d="M20 4H4C2.89543 4 2 4.89543 2 6V18C2 19.1046 2.89543 20 4 20H20C21.1046 20 22 19.1046 22 18V6C22 4.89543 21.1046 4 20 4Z" stroke="#AD0369" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
   <path d="M22 7L13.03 12.7C12.7213 12.8934 12.3643 12.996 12 12.996C11.6357 12.996 11.2787 12.8934 10.97 12.7L2 7" stroke="#AD0369" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
-                        <a href="mailto:{{ $contact->mail_adm }}" class="text-[#111010] font-inter text-[16px] font-normal leading-normal tracking-[-0.01em] ml-3 max-[1199px]:text-[15px] max-[639px]:text-[14px] max-[639px]:ml-2 break-all">
-                            {{ $contact->mail_adm }}
-                        </a>
-                    </div>
-                    @endif
-            
+                                <a href="mailto:{{ $datos['mail'] }}" class="text-[#111010] font-inter text-[16px] font-normal leading-normal tracking-[-0.01em] ml-3 max-[1199px]:text-[15px] max-[639px]:text-[14px] max-[639px]:ml-2 break-all">
+                                    {{ $datos['mail'] }}
+                                </a>
+                            </div>
+                            @endif
+                        </div>
+                        @endif
+                    @endforeach
+
 
                 </div>
             </div>
@@ -132,7 +151,7 @@
         </div>
 
         @if($contact?->frame_adm)
-        <div class="mt-[98px] mb-[80px] sm:mt-[80px] max-w-[1224px] mx-auto max-[1199px]:mt-[60px] max-[1199px]:px-4 max-[639px]:mt-12 max-[639px]:mb-12">
+        <div class="mt-[98px] mb-[80px] sm:mt-[40px] max-w-[1224px] mx-auto max-[1199px]:mt-[60px] max-[1199px]:px-4 max-[639px]:mt-12 max-[639px]:mb-12">
             <div wire:ignore class="w-full h-[574px] sm:h-[484px] relative max-[1199px]:h-[400px] max-[767px]:h-[350px] max-[639px]:h-[300px] rounded-lg overflow-hidden animate-fadeIn [&_iframe]:grayscale [&_iframe]:w-full [&_iframe]:h-full [&_iframe]:border-0">
                 {!! $contact->frame_adm !!}
             </div>

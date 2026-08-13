@@ -27,35 +27,63 @@
                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Teléfono 1</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Teléfono Comercial</label>
                     <input type="text" name="phone_amd"
                            value="{{ $contact->phone_amd ?? '' }}"
                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Teléfono 2</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Email Comercial</label>
+                    <input type="email" name="mail_comercial"
+                           value="{{ $contact->mail_comercial ?? '' }}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Teléfono Técnico</label>
                     <input type="text" name="phone_sale"
                            value="{{ $contact->phone_sale ?? '' }}"
                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Teléfono 3</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Email Técnico</label>
+                    <input type="email" name="mail_tecnico"
+                           value="{{ $contact->mail_tecnico ?? '' }}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Teléfono Compras</label>
                     <input type="text" name="maps_adm"
                            value="{{ $contact->maps_adm ?? '' }}"
                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Teléfono 4</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Email Compras</label>
+                    <input type="email" name="mail_compras"
+                           value="{{ $contact->mail_compras ?? '' }}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Teléfono Administración</label>
                     <input type="text" name="maps_sale"
                            value="{{ $contact->maps_sale ?? '' }}"
                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Email </label>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Email Administración</label>
+                    <input type="email" name="mail_logistica"
+                           value="{{ $contact->mail_logistica ?? '' }}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Email (donde llegan los mails de la web) </label>
                     <input type="email" name="mail_adm"
                            value="{{ $contact->mail_adm ?? '' }}"
                            class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm">

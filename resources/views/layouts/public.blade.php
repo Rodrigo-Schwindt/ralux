@@ -300,7 +300,7 @@
 
 <header 
 x-data="{ open: false }"
-class="items-center   items-center flex  w-full h-[100px]">
+class="bg-white relative z-50 items-center flex w-full h-[100px] shadow-[0_1px_8px_0_rgba(0,0,0,0.08)]">
 
 <div class="max-w-[1224px] mx-auto flex justify-between items-center w-full px-4 lg:px-0">
 
