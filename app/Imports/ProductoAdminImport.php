@@ -4,21 +4,74 @@ namespace App\Imports;
 
 use App\Models\CodigoOM;
 use App\Models\Producto;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Concerns\SkipsEmptyRows;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithCalculatedFormulas;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Maatwebsite\Excel\Concerns\WithMultipleSheets;
 
-class ProductoAdminImport implements ToModel, WithHeadingRow, SkipsEmptyRows, WithCalculatedFormulas
+class ProductoAdminImport implements ToModel, WithHeadingRow, SkipsEmptyRows, WithCalculatedFormulas, WithMultipleSheets
 {
     private int $creados = 0;
     private int $actualizados = 0;
     private int $eliminados = 0;
     private int $omitidos = 0;
 
+    // Datos precargados para evitar varias queries por fila (codigo normalizado => Producto)
+    private ?array $productos = null;
+    private array $pivots = [];
+    private array $codigosOm = [];
+
+    private const PIVOTS = [
+        'vehiculo_tipos_ids' => ['tabla' => 'vehiculo_tipo_producto', 'columna' => 'vehiculo_tipo_id', 'relacion' => 'vehiculoTipos'],
+        'marcas_ids' => ['tabla' => 'marca_producto', 'columna' => 'marca_id', 'relacion' => 'marcas'],
+        'modelos_ids' => ['tabla' => 'modelo_producto', 'columna' => 'modelo_id', 'relacion' => 'modelos'],
+    ];
+
     public function __construct(private bool $soloActualizar = false)
     {
+    }
+
+    // Solo se procesa la primera hoja (Productos); las hojas "Ref - ..." son de consulta
+    public function sheets(): array
+    {
+        return [0 => $this];
+    }
+
+    private function claveCodigo($codigo): string
+    {
+        return mb_strtolower(trim((string) $codigo));
+    }
+
+    private function precargar(): void
+    {
+        $this->productos = [];
+        foreach (Producto::all() as $producto) {
+            $this->productos[$this->claveCodigo($producto->codigo_ralux)] = $producto;
+        }
+
+        foreach (self::PIVOTS as $campo => $pivot) {
+            $this->pivots[$campo] = [];
+            foreach (DB::table($pivot['tabla'])->get(['producto_id', $pivot['columna']]) as $fila) {
+                $this->pivots[$campo][$fila->producto_id][] = (int) $fila->{$pivot['columna']};
+            }
+        }
+
+        foreach (CodigoOM::all(['producto_id', 'marca_id', 'codigo']) as $codigoOm) {
+            $this->codigosOm[$codigoOm->producto_id][] = $codigoOm->codigo . '|' . ($codigoOm->marca_id ?? '');
+        }
+    }
+
+    private function mismosValores(array $a, array $b): bool
+    {
+        $a = array_values(array_unique($a));
+        $b = array_values(array_unique($b));
+        sort($a);
+        sort($b);
+
+        return $a === $b;
     }
 
     private function limpiarNumero($valor): ?string
@@ -160,6 +213,7 @@ class ProductoAdminImport implements ToModel, WithHeadingRow, SkipsEmptyRows, Wi
         }
 
         $producto->delete();
+        unset($this->productos[$this->claveCodigo($producto->codigo_ralux)]);
         $this->eliminados++;
     }
 
@@ -170,9 +224,11 @@ class ProductoAdminImport implements ToModel, WithHeadingRow, SkipsEmptyRows, Wi
             return null;
         }
 
-        $productoExistente = Producto::with('imagenes')
-            ->where('codigo_ralux', $codigo)
-            ->first();
+        if ($this->productos === null) {
+            $this->precargar();
+        }
+
+        $productoExistente = $this->productos[$this->claveCodigo($codigo)] ?? null;
 
         if (isset($row['eliminar']) && (int) $row['eliminar'] === 1) {
             if ($productoExistente) {
@@ -242,36 +298,34 @@ class ProductoAdminImport implements ToModel, WithHeadingRow, SkipsEmptyRows, Wi
             $data['periodo_hasta'] = $fechaHasta;
         }
 
-        $producto = Producto::updateOrCreate(
-            ['codigo_ralux' => $codigo],
-            $data
-        );
-
         if ($productoExistente) {
+            $producto = $productoExistente->fill($data);
+            if ($producto->isDirty()) {
+                $producto->save();
+            }
             $this->actualizados++;
         } else {
+            $producto = Producto::create(['codigo_ralux' => $codigo] + $data);
+            $this->productos[$this->claveCodigo($codigo)] = $producto;
             $this->creados++;
         }
 
-        if ($this->valorPresente($row, 'vehiculo_tipos_ids')) {
-            $ids = array_filter(array_map('intval', explode(',', (string) $row['vehiculo_tipos_ids'])));
-            $producto->vehiculoTipos()->sync($ids);
-        }
+        foreach (self::PIVOTS as $campo => $pivot) {
+            if (!$this->valorPresente($row, $campo)) {
+                continue;
+            }
 
-        if ($this->valorPresente($row, 'marcas_ids')) {
-            $ids = array_filter(array_map('intval', explode(',', (string) $row['marcas_ids'])));
-            $producto->marcas()->sync($ids);
-        }
+            $ids = array_values(array_filter(array_map('intval', explode(',', (string) $row[$campo]))));
+            if ($this->mismosValores($ids, $this->pivots[$campo][$producto->id] ?? [])) {
+                continue;
+            }
 
-        if ($this->valorPresente($row, 'modelos_ids')) {
-            $ids = array_filter(array_map('intval', explode(',', (string) $row['modelos_ids'])));
-            $producto->modelos()->sync($ids);
+            $producto->{$pivot['relacion']}()->sync($ids);
+            $this->pivots[$campo][$producto->id] = $ids;
         }
 
         if ($this->valorPresente($row, 'codigos_om')) {
-            $producto->codigosOM()->delete();
-
-            $vistos = [];
+            $nuevos = [];
             $pares = explode(',', (string) $row['codigos_om']);
 
             foreach ($pares as $par) {
@@ -285,17 +339,25 @@ class ProductoAdminImport implements ToModel, WithHeadingRow, SkipsEmptyRows, Wi
                 $marcaId = isset($partes[1]) && $partes[1] !== '' ? (int) $partes[1] : null;
                 $clave = $codigoOm . '|' . ($marcaId ?? '');
 
-                if ($codigoOm === '' || isset($vistos[$clave])) {
+                if ($codigoOm === '' || isset($nuevos[$clave])) {
                     continue;
                 }
 
-                $vistos[$clave] = true;
+                $nuevos[$clave] = ['codigo' => $codigoOm, 'marca_id' => $marcaId];
+            }
 
-                CodigoOM::create([
-                    'producto_id' => $producto->id,
-                    'marca_id' => $marcaId,
-                    'codigo' => $codigoOm,
-                ]);
+            if (!$this->mismosValores(array_keys($nuevos), $this->codigosOm[$producto->id] ?? [])) {
+                $producto->codigosOM()->delete();
+
+                foreach ($nuevos as $nuevo) {
+                    CodigoOM::create([
+                        'producto_id' => $producto->id,
+                        'marca_id' => $nuevo['marca_id'],
+                        'codigo' => $nuevo['codigo'],
+                    ]);
+                }
+
+                $this->codigosOm[$producto->id] = array_keys($nuevos);
             }
         }
 

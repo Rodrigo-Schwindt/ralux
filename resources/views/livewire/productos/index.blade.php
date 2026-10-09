@@ -287,6 +287,15 @@
 </style>
 
 <script>
+// Si el servidor no responde JSON (timeout, error fatal, limite de upload) se informa el status HTTP
+function parseImportResponse(response) {
+    return response.json().catch(() => {
+        throw new Error([502, 503, 504].includes(response.status)
+            ? `El servidor tardo demasiado en responder (HTTP ${response.status}).`
+            : `Error del servidor (HTTP ${response.status}). Intenta nuevamente.`);
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput   = document.getElementById('searchInput');
     const clearSearch   = document.getElementById('clearSearch');
@@ -523,7 +532,7 @@ document.addEventListener('DOMContentLoaded', function() {
             body: formData,
             headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
         })
-        .then(r => r.json())
+        .then(parseImportResponse)
         .then(data => {
             setLoading(false);
             if (data.success) {
@@ -535,9 +544,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 importError.classList.remove('hidden');
             }
         })
-        .catch(() => {
+        .catch((error) => {
             setLoading(false);
-            importError.textContent = 'Error inesperado. Intentá nuevamente.';
+            importError.textContent = error.message || 'Error inesperado. Intentá nuevamente.';
             importError.classList.remove('hidden');
         });
     });
@@ -642,7 +651,7 @@ document.addEventListener('DOMContentLoaded', function() {
             body: formData,
             headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
         })
-        .then((response) => response.json())
+        .then(parseImportResponse)
         .then((data) => {
             if (data.success) {
                 sessionStorage.setItem('productos-import-alert', JSON.stringify({
@@ -657,9 +666,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 importError.classList.remove('hidden');
             }
         })
-        .catch(() => {
+        .catch((error) => {
             setUpdateOnlyLoading(false);
-            importError.textContent = 'Error inesperado. Intenta nuevamente.';
+            importError.textContent = error.message || 'Error inesperado. Intenta nuevamente.';
             importError.classList.remove('hidden');
         });
     });
